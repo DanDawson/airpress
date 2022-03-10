@@ -20,7 +20,7 @@ See "Plugin updated successfully."
 
 ### with SSH Access
 
-If you can login to your server with SSH then do so and navigate to your plugins directory.
+If you can login to your server with SSH then do so and navigate to your plugins directory.  
 Download airpress.1.1.63.zip and unzip.
 
 ```
