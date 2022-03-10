@@ -8,7 +8,7 @@ Download airpress.1.1.63.zip to your plugins directory and unzip.
 
 ```
 wget https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.63.zip
-unzip airpress.1.1.63.zip
+unzip -o airpress.1.1.63.zip
 ```
 
 ## Support
