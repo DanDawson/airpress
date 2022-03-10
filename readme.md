@@ -5,7 +5,7 @@ This is an emergency update that removes Freemius integration with insecure ajax
 ## Installation
 
 ### via WP Admin / Plugins
-Download the latest zip file [https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.63.zip](https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.63.zip)  
+Download the latest zip file [https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.64.zip](https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.64.zip)  
 Login to your WordPress admin dashboard  
 Go to Plugins  
 Click Add new  
@@ -21,11 +21,11 @@ See "Plugin updated successfully."
 ### with SSH Access
 
 If you can login to your server with SSH then do so and navigate to your plugins directory.  
-Download airpress.1.1.63.zip and unzip.
+Download airpress.1.1.64.zip and unzip.
 
 ```
-wget https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.63.zip
-unzip -o airpress.1.1.63.zip
+wget https://raw.githubusercontent.com/BasicByDesign/airpress/master/airpress.1.1.64.zip
+unzip -o airpress.1.1.64.zip
 ```
 
 ## Support
