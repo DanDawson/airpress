@@ -3,14 +3,14 @@
 Plugin Name: Airpress
 Plugin URI: http://chetmac.com/airpress
 Description: Extend Wordpress Posts, Pages, and Custom Fields with data from remote Airtable records.
-Version: 1.1.63
+Version: 1.1.64
 Author: Chester McLaughlin
 Author URI: http://chetmac.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-$airpress_version = "1.1.63";
+$airpress_version = "1.1.64";
 
 if ( ! defined( 'WPINC' ) ) {
 	 die;
@@ -30,17 +30,19 @@ if (is_admin()){
 	require_once("lib/chetmac/AirpressVirtualPostsAdmin.php");
 	require_once("lib/chetmac/AirpressVirtualFieldsAdmin.php");
 
-	if ( is_plugin_active("elementor/elementor.php") ){
-		// require_once("lib/chetmac/AirpressElementorWidget.php");
+	if (!function_exists('is_plugin_active')) {
+		if ( is_plugin_active("elementor/elementor.php") ){
+			// require_once("lib/chetmac/AirpressElementorWidget.php");
 
-		add_action( 'elementor/widgets/widgets_registered', 'register_airpress_elementor' );
+			add_action( 'elementor/widgets/widgets_registered', 'register_airpress_elementor' );
 
-		function register_airpress_elementor(){
-				// Include Widget files
-			require_once( 'lib/chetmac/AirpressElementorWidget.php' );
+			function register_airpress_elementor(){
+					// Include Widget files
+				require_once( 'lib/chetmac/AirpressElementorWidget.php' );
 
-			// Register widget
-			\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new \AirpressElementorWidget() );
+				// Register widget
+				\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new \AirpressElementorWidget() );
+			}
 		}
 	}
 }
