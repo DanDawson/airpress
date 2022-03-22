@@ -60,8 +60,8 @@ function airpress_db_render( $active_tab = '' ) {
 	}
 
 	?>
-	<div class="wrap">
-	<?php
+<div class="wrap">
+  <?php
 		echo "There are ".count($results)." cached queries using ".round((($e-$s)/1024)/1024,2)." MB memory.<br><br>";
 		$now = time();
 		foreach($results as $row){
@@ -72,53 +72,56 @@ function airpress_db_render( $active_tab = '' ) {
 			echo "$data_age hours old. Transient expires in $data_expire hours.<br>";
 		}
 	?>
-	<br><br>
-	<a href="<?php echo admin_url("admin.php?page=airpress_db&delete-expired-transients=true"); ?>">Delete Expired Transients?</a><br>
-	<a href="<?php echo admin_url("admin.php?page=airpress_db&delete-expired-transients=true&all=true"); ?>">Delete All Transients (completely clear cache)?</a>
-	</div>
-	<?php
+  <br><br>
+  <a href="<?php echo admin_url("admin.php?page=airpress_db&delete-expired-transients=true"); ?>">Delete Expired
+    Transients?</a><br>
+  <a href="<?php echo admin_url("admin.php?page=airpress_db&delete-expired-transients=true&all=true"); ?>">Delete All
+    Transients (completely clear cache)?</a>
+</div>
+<?php
 }
 
 function airpress_cx_render( $active_tab = '' ) {
 	global $airpress;
 
 ?>
-	<!-- Create a header in the default WordPress 'wrap' container -->
-	<div class="wrap">
-	
-		<div id="icon-themes" class="icon32"></div>
-		<h2><?php _e( 'Airtable API Settings', 'airpress' ); ?></h2>
-		<p>You may find that multiple API Keys or APP IDs are required for your website. Create as many as you need!</p>
-		<?php settings_errors(); ?>
-		
-		<?php
+<!-- Create a header in the default WordPress 'wrap' container -->
+<div class="wrap">
+
+  <div id="icon-themes" class="icon32"></div>
+  <h2><?php _e( 'Airtable API Settings', 'airpress' ); ?></h2>
+  <p>You may find that multiple API Keys or APP IDs are required for your website. Create as many as you need!</p>
+  <?php settings_errors(); ?>
+
+  <?php
 		$configs = get_airpress_configs("airpress_cx",false);
-		$active_tab = (isset($_GET['tab']))? $_GET['tab'] : 0;
+		$active_tab = (isset($_GET['tab']))? intval($_GET['tab']) : 0;
 
 		?>
-		
-		<h2 class="nav-tab-wrapper">
-			<?php
+
+  <h2 class="nav-tab-wrapper">
+    <?php
 			foreach($configs as $key => $config):
 				$class = ($active_tab == $key)? 'nav-tab-active' : '';
 			?>
-			<a href="?page=airpress_cx&tab=<?php echo $key; ?>" class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
-			<?php
+    <a href="?page=airpress_cx&tab=<?php echo $key; ?>"
+      class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
+    <?php
 			endforeach;
 			?>
-			<a href="?page=airpress_cx&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
-		</h2>
-		
-		<form method="post" action="options.php">
-			<?php
+    <a href="?page=airpress_cx&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
+  </h2>
+
+  <form method="post" action="options.php">
+    <?php
 				settings_fields( 'airpress_cx'.$active_tab );
 				do_settings_sections( 'airpress_cx'.$active_tab );		
 				submit_button();
 			
 			?>
-		</form>
-		
-	</div><!-- /.wrap -->
+  </form>
+
+</div><!-- /.wrap -->
 <?php
 }
 
@@ -126,7 +129,7 @@ function airpress_admin_cx_tab_controller(){
 
 	$airpress_config_initials = false;
 
-	if ( isset($_GET["page"]) && preg_match("/^airpress_(..)$/",$_GET["page"],$matches) ){
+	if ( isset($_GET["page"]) && preg_match("/^airpress_(..)$/",sanitize_title($_GET["page"]),$matches) ){
 		$airpress_config_initials = $matches[1];
 	} else if ( isset($_POST["option_page"]) && preg_match("/^airpress_(..).*$/",$_POST["option_page"],$matches) ){
 		$airpress_config_initials = $matches[1];
@@ -138,12 +141,12 @@ function airpress_admin_cx_tab_controller(){
 	}
 
 	if (isset($_GET["delete"]) && $_GET["delete"] == "true"){
-		delete_airpress_config("airpress_".$airpress_config_initials,$_GET['tab']);
+		delete_airpress_config("airpress_".$airpress_config_initials,intval($_GET['tab']));
 		header("Location: ".admin_url("/admin.php?page=airpress_".$airpress_config_initials));
 		exit;
 	} else {
 		$configs = get_airpress_configs("airpress_".$airpress_config_initials,false);
-		$requested_tab = (isset($_GET['tab']))? $_GET['tab'] : 0;
+		$requested_tab = (isset($_GET['tab']))? intval($_GET['tab']) : 0;
 	}
 
 	if (empty($configs) || !isset($configs[$requested_tab])){
@@ -424,7 +427,7 @@ function airpress_admin_cx_render_element_delete($args) {
 	$option_name = $args[1];
 	$field_name = $args[2];
 
-	$tab = (int)$_GET["tab"];
+	$tab = intval($_GET["tab"]);
 	echo "<a href='?page=airpress_cx&tab=$tab&delete=true'>Yes, delete this configuration</a>";
 }
 

@@ -30,42 +30,47 @@ function airpress_vp_render( $active_tab = '' ) {
 		$wp_rewrite->flush_rules();
 	}
 ?>
-	<!-- Create a header in the default WordPress 'wrap' container -->
-	<div class="wrap">
-	
-		<div id="icon-themes" class="icon32"></div>
-		<h2><?php _e( 'Airpress Virtual Posts', 'airpress' ); ?></h2>
-		<p>Rather than creating hundreds of pages/posts in Wordpress, simply map a URL pattern to an Airpress table using Airpress Virtual Posts. Each requests that matches the pattern will attempt to retrieve the cooresponding Airtable record and serve it using the specified Wordpress page as a 'template'. If an Airtable record is not found, a 404 is served. If a Wordpress page/post exists for the requested URL, then it will be used instead of the 'template' specified.</p>
-		<?php settings_errors(); ?>
-		
-		<?php
+<!-- Create a header in the default WordPress 'wrap' container -->
+<div class="wrap">
+
+  <div id="icon-themes" class="icon32"></div>
+  <h2><?php _e( 'Airpress Virtual Posts', 'airpress' ); ?></h2>
+  <p>Rather than creating hundreds of pages/posts in Wordpress, simply map a URL pattern to an Airpress table using
+    Airpress Virtual Posts. Each requests that matches the pattern will attempt to retrieve the cooresponding Airtable
+    record and serve it using the specified Wordpress page as a 'template'. If an Airtable record is not found, a 404 is
+    served. If a Wordpress page/post exists for the requested URL, then it will be used instead of the 'template'
+    specified.</p>
+  <?php settings_errors(); ?>
+
+  <?php
 		$configs = get_airpress_configs("airpress_vp",false);
-		$active_tab = (isset($_GET['tab']))? $_GET['tab'] : 0;
+		$active_tab = (isset($_GET['tab']))? intval($_GET['tab']) : 0;
 
 		?>
-		
-		<h2 class="nav-tab-wrapper">
-			<?php
+
+  <h2 class="nav-tab-wrapper">
+    <?php
 			foreach($configs as $key => $config):
 				$class = ($active_tab == $key)? 'nav-tab-active' : '';
 			?>
-			<a href="?page=airpress_vp&tab=<?php echo $key; ?>" class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
-			<?php
+    <a href="?page=airpress_vp&tab=<?php echo $key; ?>"
+      class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
+    <?php
 			endforeach;
 			?>
-			<a href="?page=airpress_vp&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
-		</h2>
-		
-		<form method="post" action="options.php">
-			<?php
+    <a href="?page=airpress_vp&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
+  </h2>
+
+  <form method="post" action="options.php">
+    <?php
 				settings_fields( 'airpress_vp'.$active_tab );
 				do_settings_sections( 'airpress_vp'.$active_tab );		
 				submit_button();
 			
 			?>
-		</form>
-		
-	</div><!-- /.wrap -->
+  </form>
+
+</div><!-- /.wrap -->
 <?php
 }
 
@@ -386,7 +391,7 @@ function airpress_admin_vp_render_element_delete($args) {
 	$option_name = $args[1];
 	$field_name = $args[2];
 
-	$tab = (int)$_GET["tab"];
+	$tab = intval($_GET["tab"]);
 	echo "<a href='?page=airpress_vp&tab=$tab&delete=true'>Yes, delete this configuration</a>";
 }
 

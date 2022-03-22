@@ -28,42 +28,45 @@ function airpress_vf_render( $active_tab = '' ) {
 		$wp_rewrite->flush_rules();
 	}
 ?>
-	<!-- Create a header in the default WordPress 'wrap' container -->
-	<div class="wrap">
-	
-		<div id="icon-themes" class="icon32"></div>
-		<h2><?php _e( 'Airpress Virtual Fields', 'airpress' ); ?></h2>
-		<p>Managing custom fields for hundreds or thousands of posts can be tedious and daunting! Airpress Virtual Fields allow you to automatically retrieve Airtable records for each post/page/etc by specifying a Wordpress field (such as ID or post_name) and an Airtable table and field.</p>
-		<?php settings_errors(); ?>
-		
-		<?php
+<!-- Create a header in the default WordPress 'wrap' container -->
+<div class="wrap">
+
+  <div id="icon-themes" class="icon32"></div>
+  <h2><?php _e( 'Airpress Virtual Fields', 'airpress' ); ?></h2>
+  <p>Managing custom fields for hundreds or thousands of posts can be tedious and daunting! Airpress Virtual Fields
+    allow you to automatically retrieve Airtable records for each post/page/etc by specifying a Wordpress field (such as
+    ID or post_name) and an Airtable table and field.</p>
+  <?php settings_errors(); ?>
+
+  <?php
 		$configs = get_airpress_configs("airpress_vf",false);
-		$active_tab = (isset($_GET['tab']))? $_GET['tab'] : 0;
+		$active_tab = (isset($_GET['tab']))? intval($_GET['tab']) : 0;
 
 		?>
-		
-		<h2 class="nav-tab-wrapper">
-			<?php
+
+  <h2 class="nav-tab-wrapper">
+    <?php
 			foreach($configs as $key => $config):
 				$class = ($active_tab == $key)? 'nav-tab-active' : '';
 			?>
-			<a href="?page=airpress_vf&tab=<?php echo $key; ?>" class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
-			<?php
+    <a href="?page=airpress_vf&tab=<?php echo $key; ?>"
+      class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
+    <?php
 			endforeach;
 			?>
-			<a href="?page=airpress_vf&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
-		</h2>
-		
-		<form method="post" action="options.php">
-			<?php
+    <a href="?page=airpress_vf&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
+  </h2>
+
+  <form method="post" action="options.php">
+    <?php
 				settings_fields( 'airpress_vf'.$active_tab );
 				do_settings_sections( 'airpress_vf'.$active_tab );		
 				submit_button();
 			
 			?>
-		</form>
-		
-	</div><!-- /.wrap -->
+  </form>
+
+</div><!-- /.wrap -->
 <?php
 }
 
@@ -277,7 +280,7 @@ function airpress_admin_vf_render_element_delete($args) {
 	$option_name = $args[1];
 	$field_name = $args[2];
 
-	$tab = (int)$_GET["tab"];
+	$tab = intval($_GET["tab"]);
 	echo "<a href='?page=airpress_vf&tab=$tab&delete=true'>Yes, delete this configuration</a>";
 }
 
