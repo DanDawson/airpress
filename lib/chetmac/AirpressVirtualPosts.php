@@ -413,7 +413,7 @@ class AirpressVirtualPosts {
 
 				$the_new_slug = implode("-", $this->AirpressCollection->getFieldValues($slug_field) );
 
-				$canonical_url = $_SERVER["HTTP_HOST"].dirname($_SERVER["REQUEST_URI"])."/".$the_new_slug."/";
+				$canonical_url =sanitize_url($_SERVER["HTTP_HOST"]).dirname(sanitize_url($_SERVER["REQUEST_URI"]))."/".$the_new_slug."/";
 			}
 		}
 		
@@ -468,7 +468,7 @@ class AirpressVirtualPosts {
 			if ( isset($config["default"]) && ! empty($config["default"]) ){
 				$permalink = get_permalink($config["template"]);
 				$protocol = (empty($_SERVER["HTTPS"]))? "http" : "https";
-				$remove = $protocol."://".$_SERVER["HTTP_HOST"]."/";
+				$remove = $protocol."://".sanitize_url($_SERVER["HTTP_HOST"])."/";
 				$permalink = trim(str_replace($remove,"",$permalink),"/");
 				$pattern = "^".$permalink."/?";
 

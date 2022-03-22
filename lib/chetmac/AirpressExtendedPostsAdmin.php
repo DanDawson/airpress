@@ -260,7 +260,7 @@ function airpress_ep_add_rules(){
 		if ( isset($config["default"]) && ! empty($config["default"]) ){
 			$permalink = get_permalink($config["template"]);
 			$protocol = (empty($_SERVER["HTTPS"]))? "http" : "https";
-			$remove = $protocol."://".$_SERVER["HTTP_HOST"]."/";
+			$remove = $protocol."://".sanitize_url($_SERVER["HTTP_HOST"])."/";
 			$permalink = trim(str_replace($remove,"",$permalink),"/");
 			$pattern = "^".$permalink."/?";
 
