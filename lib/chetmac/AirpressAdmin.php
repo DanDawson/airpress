@@ -131,7 +131,7 @@ function airpress_admin_cx_tab_controller(){
 
 	if ( isset($_GET["page"]) && preg_match("/^airpress_(..)$/",sanitize_title($_GET["page"]),$matches) ){
 		$airpress_config_initials = $matches[1];
-	} else if ( isset($_POST["option_page"]) && preg_match("/^airpress_(..).*$/",$_POST["option_page"],$matches) ){
+	} else if ( isset($_POST["option_page"]) && preg_match("/^airpress_(..).*$/",sanitize_title($_POST["option_page"]),$matches) ){
 		$airpress_config_initials = $matches[1];
 	}
 	
