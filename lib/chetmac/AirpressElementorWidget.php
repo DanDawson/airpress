@@ -50,7 +50,8 @@ class AirpressElementorWidget extends \Elementor\Widget_Base {
 
 		echo '<div class="oembed-elementor-widget">';
 
-		echo ( $html ) ? $html : $settings['url'];
+		$output = ( $html ) ? $html : $settings['url'];
+		echo esc_html($output);
 
 		echo '</div>';
 	}

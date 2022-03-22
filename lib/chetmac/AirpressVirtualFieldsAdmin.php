@@ -48,13 +48,15 @@ function airpress_vf_render( $active_tab = '' ) {
     <?php
 			foreach($configs as $key => $config):
 				$class = ($active_tab == $key)? 'nav-tab-active' : '';
+				$tab_url = "?page=airpress_vf&tab={$key}";
 			?>
-    <a href="?page=airpress_vf&tab=<?php echo $key; ?>"
-      class="nav-tab <?php echo $class; ?>"><?php echo $config["name"]; ?></a>
+    <a href="<?php echo esc_url($tab_url); ?>"
+      class="nav-tab <?php echo esc_attr($class); ?>"><?php echo esc_html($config["name"]); ?></a>
     <?php
 			endforeach;
+			$last_tab_url = "?page=airpress_vf&tab=" . count($configs);
 			?>
-    <a href="?page=airpress_vf&tab=<?php echo count($configs);?>" class="nav-tab">+</a>
+    <a href="<?php echo esc_url($last_tab_url);?>" class="nav-tab">+</a>
   </h2>
 
   <form method="post" action="options.php">
@@ -213,7 +215,7 @@ function airpress_admin_vf_render_element_text($args) {
 	$option_name = $args[1];
 	$field_name = $args[2];
 
-	echo '<input type="text" id="' . $field_name . '" name="' . $option_name . '[' . $field_name . ']" value="' . $options[$field_name] . '" />';
+	echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="' . esc_attr($options[$field_name]) . '" />';
 }
 
 function airpress_admin_vf_render_element_toggle($args) {
@@ -222,8 +224,8 @@ function airpress_admin_vf_render_element_toggle($args) {
 	$field_name = $args[2];
 
 	$checked = checked( 1, isset( $options[$field_name] ) ? $options[$field_name] : 0, false );
-	echo '<input type="checkbox" id="' . $field_name . '" name="' . $option_name . '[' . $field_name . ']" value="1" '.$checked.'/>';
-	echo '<label for="'.$field_name.'">&nbsp;'  . $field_name . '</label>'; 
+	echo '<input type="checkbox" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="1" '.esc_attr($checked).'/>';
+	echo '<label for="'.esc_attr($field_name).'">&nbsp;'  . esc_html($field_name) . '</label>'; 
 }
 
 function airpress_admin_vf_render_element_select__posttypes($args) {
@@ -233,10 +235,10 @@ function airpress_admin_vf_render_element_select__posttypes($args) {
 
 	$post_types = get_post_types( array( 'public'   => true) );
 
-	echo '<select id="' . $field_name . '" name="' . $option_name . '[' . $field_name . ']">';
+	echo '<select id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']">';
 	foreach ( $post_types  as $post_type ) {
 		$selected = ( $post_type == $options[$field_name] )? "selected" : "";
-		echo '<option value="'.$post_type.'" '.$selected.'>'.$post_type.'</option>';
+		echo '<option value="'.esc_attr($post_type).'" '.esc_attr($selected).'>'.esc_html($post_type).'</option>';
 	}
 	echo '</select>';
 }
@@ -248,10 +250,10 @@ function airpress_admin_vf_render_element_select_connections($args) {
 
 	$connections = get_airpress_configs("airpress_cx");
 
-	echo '<select id="' . $field_name . '" name="' . $option_name . '[' . $field_name . ']">';
+	echo '<select id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']">';
 	foreach ( $connections  as $connection ) {
 		$selected = ($connection["name"] == $options[$field_name])? "selected" : "";
-		echo '<option value="'.$connection["name"].'" '.$selected.'>'.$connection["name"].'</option>';
+		echo '<option value="'.esc_attr($connection["name"]).'" '.esc_attr($selected).'>'.esc_html($connection["name"]).'</option>';
 	}
 	echo '</select>';
 }
@@ -263,14 +265,13 @@ function airpress_admin_vf_render_element_select__page($args) {
 
 	$pages = get_pages(); 
 	
-	echo '<select id="' . $field_name . '" name="' . $option_name . '[' . $field_name . ']">';
+	echo '<select id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']">';
 
 	foreach ( $pages as $page ) {
 		$selected = ($options[$field_name] == $page->ID)? " selected" : "";
-		$option = '<option value="' . $page->ID . '"'.$selected.'>';
-		$option .= $page->post_title." (".$page->post_name.")";
-		$option .= '</option>';
-		echo $option;
+		echo '<option value="' . esc_attr($page->ID) . '"'.esc_attr($selected).'>';
+		echo esc_html($page->post_title)." (".esc_html($page->post_name).")";
+		echo '</option>';
 	}
 	echo '</select>';
 }
@@ -281,7 +282,8 @@ function airpress_admin_vf_render_element_delete($args) {
 	$field_name = $args[2];
 
 	$tab = intval($_GET["tab"]);
-	echo "<a href='?page=airpress_vf&tab=$tab&delete=true'>Yes, delete this configuration</a>";
+	$delete_url = "?page=airpress_vf&tab={$tab}&delete=true";
+	echo "<a href='".esc_url($delete_url)."'>Yes, delete this configuration</a>";
 }
 
 
