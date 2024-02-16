@@ -271,57 +271,60 @@ function airpress_cx_validation($input) {
 	// Initialize new input array to store sanitized values
 	$new_input = array();
 
-	// Sanitize the Personal Access Token
+	// Directly sanitize and save the Personal Access Token
 	$new_input['api_key'] = isset($input['api_key']) ? sanitize_text_field($input['api_key']) : '';
 
-	// Sanitize the Configuration Name
-	$new_input['name'] = isset($input['name']) ? sanitize_text_field($input['name']) : '';
-
 	// Sanitize other fields similarly
+	$new_input['name'] = isset($input['name']) ? sanitize_text_field($input['name']) : '';
 	$new_input['app_id'] = isset($input['app_id']) ? sanitize_text_field($input['app_id']) : '';
 	$new_input['api_url'] = isset($input['api_url']) ? esc_url_raw($input['api_url']) : '';
 
-	// Existing logic for handling debug and log file configuration
-	if ($input["debug"] == 1 || $input["debug"] == 2) {
-		if ($h = @fopen($input["log"], "a")) {
-			$message = "log file created at " . $input["log"];
-			fwrite($h, $message . "\n");
-			fclose($h);
+	// Handle the debug and log file logic as before
+	if (isset($input["debug"])) {
+		if ($input["debug"] == 1 || $input["debug"] == 2) {
+			if ($h = @fopen($input["log"], "a")) {
+				$message = "log file created at " . $input["log"];
+				fwrite($h, $message . "\n");
+				fclose($h);
+			} else {
+				$new_input["debug"] = 0;
+				add_settings_error('airpress_cx_log', esc_attr('settings_updated'), esc_attr($input["log"]) . " is not writable.", "error");
+			}
 		} else {
-			$new_input["debug"] = 0;
-			add_settings_error('airpress_cx_log', esc_attr('settings_updated'), esc_attr($input["log"]) . " is not writable.", "error");
-		}
-	} else {
-		$manual_intervention = false;
-		if (file_exists($input["log"])) {
-			$manual_intervention = true;
-			if (is_writable($input["log"])) {
-				if ($h = @fopen($input["log"], "w")) {
-					$message = "attempting to delete " . $input["log"];
-					fwrite($h, $message . "\n");
-					fclose($h);
-				}
-				$parts = pathinfo($input["log"]);
-				if ($parts["basename"] == "airpress.log") {
-					if (unlink($input["log"])) {
-						$manual_intervention = false;
-					} else {
-						if ($h = @fopen($input["log"], "a")) {
-							$message = "failed to delete " . $input["log"];
-							fwrite($h, $message . "\n");
-							fclose($h);
+			$manual_intervention = false;
+			if (file_exists($input["log"])) {
+				$manual_intervention = true;
+				if (is_writable($input["log"])) {
+					if ($h = @fopen($input["log"], "w")) {
+						$message = "attempting to delete " . $input["log"];
+						fwrite($h, $message . "\n");
+						fclose($h);
+					}
+					$parts = pathinfo($input["log"]);
+					if ($parts["basename"] == "airpress.log") {
+						if (unlink($input["log"])) {
+							$manual_intervention = false;
+						} else {
+							if ($h = @fopen($input["log"], "a")) {
+								$message = "failed to delete " . $input["log"];
+								fwrite($h, $message . "\n");
+								fclose($h);
+							}
 						}
 					}
 				}
 			}
-		}
-		if ($manual_intervention) {
-			add_settings_error('airpress_cx_log', esc_attr('settings_updated'), "Please delete the log file at " . esc_attr($input["log"]), "error");
+			if ($manual_intervention) {
+				add_settings_error('airpress_cx_log', esc_attr('settings_updated'), "Please delete the log file at " . esc_attr($input["log"]), "error");
+			}
 		}
 	}
 
-	// Ensure to include sanitization for other fields you might have
-	// Additional fields should be sanitized and added to $new_input here
+	// Assume there could be additional fields to sanitize and include in $new_input
+	// Example:
+	// if (isset($input['some_other_field'])) {
+	//     $new_input['some_other_field'] = sanitize_text_field($input['some_other_field']);
+	// }
 
 	$wp_rewrite->flush_rules();
 	return $new_input; // Return the sanitized inputs
@@ -342,18 +345,20 @@ function airpress_admin_cx_render_element_text($args) {
 
 	$value = esc_attr($options[$field_name]);
 
-	// Check if this is the PAT field and it has a value
+	// Check if this is the PAT field
 	if ($field_name == "api_key" && !empty($value)) {
-		// Mask the PAT for display
-		$maskedValue = substr($value, 0, 8) . '...' . substr($value, -8);
-		echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="' . $maskedValue . '" autocomplete="off" />';
-		echo '<p class="description">Your Personal Access Token is partially hidden for security.</p>';
+		// Display a truncated version of the PAT
+		$displayValue = substr($value, 0, 4) . '...' . substr($value, -4);
+		echo '<input type="text" value="' . $displayValue . '" readonly="readonly" style="background-color: #e9ecef; cursor: not-allowed;" />';
+		echo '<p class="description">The Personal Access Token is partially hidden for security. Enter a new token below to update it.</p>';
+		// Provide an input field for entering a new PAT
+		echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="" autocomplete="off" placeholder="Enter new PAT here" />';
 	} else {
-		// Render the field normally for other fields
+		// Render other fields normally
 		echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="' . $value . '" />';
 	}
 
-	if ($field_name == "name" and $options[$field_name] == "New Configuration") {
+	if ($field_name == "name" && $options[$field_name] == "New Configuration") {
 		echo "<p style='color:red'>You must change the configuration name from 'New Configuration' to something unique!</p>";
 	}
 }
