@@ -89,8 +89,8 @@ function airpress_cx_render( $active_tab = '' ) {
 <div class="wrap">
 
   <div id="icon-themes" class="icon32"></div>
-  <h2><?php _e( 'Airtable API Settings', 'airpress' ); ?></h2>
-  <p>You may find that multiple API Keys or APP IDs are required for your website. Create as many as you need!</p>
+  <h2><?php _e( 'Airtable Personal Access Token Settings', 'airpress' ); ?></h2>
+  <p>You may find that multiple Personal Access Tokens or APP ID configurations are required for your website. Create as many as you need!</p>
   <?php settings_errors(); ?>
 
   <?php
@@ -212,7 +212,7 @@ function airpress_admin_cx_tab($key,$config) {
 
 	################################
 	$field_name = "api_key";
-	$field_title = "Airtable API Key";
+	$field_title = "Airtable Personal Access Token";
 	add_settings_field(	$field_name, __( $field_title, 'airpress' ), 'airpress_admin_cx_render_element_text', $option_name, $section_name, array($options,$option_name,$field_name) );
 
 	################################
@@ -265,66 +265,69 @@ function airpress_admin_cx_tab($key,$config) {
 	register_setting($option_name,$option_name,"airpress_cx_validation");
 }
 
-function airpress_cx_validation($input){
+function airpress_cx_validation($input) {
 	global $wp_rewrite;
 	
-	if ($input["debug"] == 1 || $input["debug"] == 2){
+	// Initialize new input array to store sanitized values
+	$new_input = array();
 
-		if ( $h = @fopen($input["log"], "a") ){
-			$message = "log file created at ".$input["log"];
-			fwrite($h, $message."\n");
-			fclose($h);
+	// Directly sanitize and save the Personal Access Token
+	$new_input['api_key'] = isset($input['api_key']) ? sanitize_text_field($input['api_key']) : '';
+
+	// Sanitize other fields similarly
+	$new_input['name'] = isset($input['name']) ? sanitize_text_field($input['name']) : '';
+	$new_input['app_id'] = isset($input['app_id']) ? sanitize_text_field($input['app_id']) : '';
+	$new_input['api_url'] = isset($input['api_url']) ? esc_url_raw($input['api_url']) : '';
+
+	// Handle the debug and log file logic as before
+	if (isset($input["debug"])) {
+		if ($input["debug"] == 1 || $input["debug"] == 2) {
+			if ($h = @fopen($input["log"], "a")) {
+				$message = "log file created at " . $input["log"];
+				fwrite($h, $message . "\n");
+				fclose($h);
+			} else {
+				$new_input["debug"] = 0;
+				add_settings_error('airpress_cx_log', esc_attr('settings_updated'), esc_attr($input["log"]) . " is not writable.", "error");
+			}
 		} else {
-			$input["debug"] = 0;
-			add_settings_error('airpress_cx_log', esc_attr( 'settings_updated' ), esc_attr($input["log"])." is not writable.","error");
-		}
-
-	} else {
-
-		$manual_intervention = false;
-
-		if ( file_exists($input["log"]) ){
-
-			$manual_intervention = true;
-
-			if ( is_writable($input["log"]) ){
-
-				if ( $h = @fopen($input["log"], "w") ){
-					$message = "attempting to delete ".$input["log"];
-					fwrite($h, $message."\n");
-					fclose($h);
-				}
-
-				$parts = pathinfo($input["log"]);
-
-				// Let's only delete log files named airpress.log to avoid allowing
-				// this field to control the deletion of any file on the server
-				if ( $parts["basename"] == "airpress.log" ){
-
-					if ( unlink($input["log"]) ){
-						$manual_intervention = false;
-					} else {
-						if ( $h = @fopen($input["log"], "a") ){
-							$message = "failed to delete ".$input["log"];
-							fwrite($h, $message."\n");
-							fclose($h);
+			$manual_intervention = false;
+			if (file_exists($input["log"])) {
+				$manual_intervention = true;
+				if (is_writable($input["log"])) {
+					if ($h = @fopen($input["log"], "w")) {
+						$message = "attempting to delete " . $input["log"];
+						fwrite($h, $message . "\n");
+						fclose($h);
+					}
+					$parts = pathinfo($input["log"]);
+					if ($parts["basename"] == "airpress.log") {
+						if (unlink($input["log"])) {
+							$manual_intervention = false;
+						} else {
+							if ($h = @fopen($input["log"], "a")) {
+								$message = "failed to delete " . $input["log"];
+								fwrite($h, $message . "\n");
+								fclose($h);
+							}
 						}
 					}
-
 				}
-
 			}
-
+			if ($manual_intervention) {
+				add_settings_error('airpress_cx_log', esc_attr('settings_updated'), "Please delete the log file at " . esc_attr($input["log"]), "error");
+			}
 		}
-
-		if ( $manual_intervention ){
-			add_settings_error('airpress_cx_log', esc_attr( 'settings_updated' ), "Please delete the log file at " . esc_attr($input["log"]),"error");
-		}
-
 	}
 
+	// Assume there could be additional fields to sanitize and include in $new_input
+	// Example:
+	// if (isset($input['some_other_field'])) {
+	//     $new_input['some_other_field'] = sanitize_text_field($input['some_other_field']);
+	// }
+
 	$wp_rewrite->flush_rules();
-	return $input;
+	return $new_input; // Return the sanitized inputs
 }
 
 function airpress_admin_cx_render_section__general() {
@@ -340,12 +343,26 @@ function airpress_admin_cx_render_element_text($args) {
 	$option_name = $args[1];
 	$field_name = $args[2];
 
-	echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="' . esc_attr($options[$field_name]) . '" />';
+	$value = esc_attr($options[$field_name]);
 
-	if ( $field_name == "name" and $options[$field_name] == "New Configuration" ){
+	// Check if this is the PAT field
+	if ($field_name == "api_key" && !empty($value)) {
+		// Display a truncated version of the PAT
+		$displayValue = substr($value, 0, 4) . '...' . substr($value, -4);
+		echo '<input type="text" value="' . $displayValue . '" readonly="readonly" style="background-color: #e9ecef; cursor: not-allowed;" />';
+		echo '<p class="description">The Personal Access Token is partially hidden for security. Enter a new token below to update it.</p>';
+		// Provide an input field for entering a new PAT
+		echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="" autocomplete="off" placeholder="Enter new PAT here" />';
+	} else {
+		// Render other fields normally
+		echo '<input type="text" id="' . esc_attr($field_name) . '" name="' . esc_attr($option_name) . '[' . esc_attr($field_name) . ']" value="' . $value . '" />';
+	}
+
+	if ($field_name == "name" && $options[$field_name] == "New Configuration") {
 		echo "<p style='color:red'>You must change the configuration name from 'New Configuration' to something unique!</p>";
 	}
 }
+
 
 function airpress_admin_cx_render_element_toggle($args) {
 	$options = $args[0];
