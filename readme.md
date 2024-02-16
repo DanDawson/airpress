@@ -26,7 +26,7 @@ Download airpress-master.zip and unzip.
 
 ```
 wget https://github.com/Basicbydesign/airpress/archive/refs/heads/master.zip
-unzip -o airpress-master.zip
+unzip -o master.zip
 ```
 
 ## Support
