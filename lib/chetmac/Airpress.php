@@ -8,7 +8,7 @@ class Airpress {
 	private $loopScope;
 	public $debug_stats;
 
-	private $deferred_queries;
+	public $deferredQueries = [];
 
 	function init(){
 
@@ -121,7 +121,7 @@ class Airpress {
 /* CONFIGURATION FUNCTIONS */
 
 	
-	public function shortcode_loop($atts,$content=null,$tag){
+	public function shortcode_loop($atts, $tag, $content=null) {
 		global $post,$airpress;		
 
 	    $a = shortcode_atts( array(
@@ -186,7 +186,7 @@ class Airpress {
 	    return preg_replace("`(<br />\n)+`","<br />\n",$output);
 	}
 
-	public function shortcode_populate($atts, $content=null, $tag){
+	public function shortcode_populate($atts, $tag, $content=null) {
 		global $post,$airpress;
 
 		// Check for non-value "flag" attributes. Set to true
@@ -253,7 +253,7 @@ class Airpress {
 
 	}
 
-	public function shortcode_include($atts, $content=null, $tag){
+	public function shortcode_include($atts, $tag, $content=null) {
 		global $post,$model;
 
 	    $a = shortcode_atts( array(
@@ -284,7 +284,7 @@ class Airpress {
 	    }
 	}
 
-	public function shortcode_display($atts, $content=null, $tag){
+	public function shortcode_display($atts, $tag, $content=null) {
 		global $post;
 
 		// Check for non-value "flag" attributes. Set to true

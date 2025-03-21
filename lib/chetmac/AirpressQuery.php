@@ -156,12 +156,12 @@ class AirpressQuery {
 		global $airpress;
 		$transient = "aprq_".$this->hash();
 
-		$fresh_param = $this->config["fresh"];
-		if (isset($_GET[$fresh_param])){
+		$fresh_param = isset($this->config["fresh"]) ? $this->config["fresh"] : null;
+		if ($fresh_param && isset($_GET[$fresh_param])){
 			//delete_transient($transient);
 			return false;
 		}
-
+		
 		$storage = get_transient($transient);
 
 		if (isset($storage["records"]) && isset($storage["created_at"])){
@@ -280,7 +280,7 @@ class AirpressQuery {
 	function getTable(){ return $this->properties["table"]; }
 
 	function getRefreshAfter(){
-		return $this->config["refresh"];
+		return isset($this->config["refresh"]) ? $this->config["refresh"] : null;
 	}
 	function getExpireAfter(){ return $this->config["expire"]; }
 
